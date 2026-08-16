@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>33 Month Calculator</title>
+    <title>Calculate the validity date</title>
 
     <style>
         :root {
             --gold: #B5A26A;
-            --cream: #F4F3EF;
+            --background: #ECE9E4;
             --black: #0F0F0F;
         }
 
@@ -19,7 +19,7 @@
         body {
             margin: 0;
             min-height: 100vh;
-            background: var(--cream);
+            background: var(--background);
             color: var(--black);
             font-family: Arial, Helvetica, sans-serif;
             display: flex;
@@ -36,6 +36,7 @@
 
         h1 {
             margin: 0 0 12px;
+            color: var(--gold);
             font-size: 32px;
             font-weight: 700;
             letter-spacing: -0.5px;
@@ -61,7 +62,7 @@
             padding: 0 16px;
             border: 2px solid var(--black);
             border-radius: 6px;
-            background: var(--cream);
+            background: var(--background);
             color: var(--black);
             font-size: 17px;
             font-family: inherit;
@@ -84,7 +85,7 @@
             border: 2px solid var(--black);
             border-radius: 6px;
             background: var(--black);
-            color: var(--cream);
+            color: var(--background);
             font-size: 16px;
             font-weight: 700;
             font-family: inherit;
@@ -139,7 +140,7 @@
 
     <main class="calculator">
 
-        <h1>33 Month Calculator</h1>
+        <h1>Calculate the validity date</h1>
 
         <p class="subtitle">
             Enter a date to find the date exactly 33 months later.
@@ -150,7 +151,7 @@
         <input
             type="text"
             id="dateInput"
-            placeholder="MM/DD/YYYY"
+            placeholder="DD/MM/YYYY"
             maxlength="10"
             inputmode="numeric"
             autocomplete="off"
@@ -159,11 +160,11 @@
         <button onclick="calculateDate()">Calculate</button>
 
         <p class="error" id="error">
-            Please enter a valid date in MM/DD/YYYY format.
+            Please enter a valid date in DD/MM/YYYY format.
         </p>
 
         <div class="result" id="result">
-            <div class="result-label">33 months later</div>
+            <div class="result-label">Validity date</div>
             <div class="result-date" id="resultDate"></div>
         </div>
 
@@ -176,7 +177,7 @@
             const result = document.getElementById("result");
             const resultDate = document.getElementById("resultDate");
 
-            // Check MM/DD/YYYY format
+            // Check DD/MM/YYYY format
             const match = input.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
 
             if (!match) {
@@ -184,8 +185,8 @@
                 return;
             }
 
-            const month = parseInt(match[1], 10);
-            const day = parseInt(match[2], 10);
+            const day = parseInt(match[1], 10);
+            const month = parseInt(match[2], 10);
             const year = parseInt(match[3], 10);
 
             if (month < 1 || month > 12 || day < 1 || day > 31) {
@@ -206,19 +207,22 @@
                 return;
             }
 
-            // Add exactly 33 months.
+            // Add exactly 33 calendar months.
             const targetMonth = originalDate.getMonth() + 33;
-            const targetYear = originalDate.getFullYear() + Math.floor(targetMonth / 12);
+            const targetYear =
+                originalDate.getFullYear() +
+                Math.floor(targetMonth / 12);
+
             const targetMonthIndex = targetMonth % 12;
 
-            // Handle dates such as January 31 → October 31,
-            // while safely handling months that don't have 31 days.
+            // Find the last valid day of the target month.
             const lastDayOfTargetMonth = new Date(
                 targetYear,
                 targetMonthIndex + 1,
                 0
             ).getDate();
 
+            // Keep the same day when possible.
             const targetDay = Math.min(
                 originalDate.getDate(),
                 lastDayOfTargetMonth
@@ -230,10 +234,11 @@
                 targetDay
             );
 
+            // Format as DD/MM/YYYY.
             const formattedDate =
-                String(finalDate.getMonth() + 1).padStart(2, "0") +
-                "/" +
                 String(finalDate.getDate()).padStart(2, "0") +
+                "/" +
+                String(finalDate.getMonth() + 1).padStart(2, "0") +
                 "/" +
                 finalDate.getFullYear();
 
@@ -248,26 +253,33 @@
         }
 
         // Allow the Enter key to calculate.
-        document.getElementById("dateInput").addEventListener("keydown", function(event) {
-            if (event.key === "Enter") {
-                calculateDate();
+        document.getElementById("dateInput").addEventListener(
+            "keydown",
+            function(event) {
+                if (event.key === "Enter") {
+                    calculateDate();
+                }
             }
-        });
+        );
 
         // Automatically add "/" while typing.
-        document.getElementById("dateInput").addEventListener("input", function(event) {
-            let value = event.target.value.replace(/\D/g, "");
+        document.getElementById("dateInput").addEventListener(
+            "input",
+            function(event) {
 
-            if (value.length > 2) {
-                value = value.slice(0, 2) + "/" + value.slice(2);
+                let value = event.target.value.replace(/\D/g, "");
+
+                if (value.length > 2) {
+                    value = value.slice(0, 2) + "/" + value.slice(2);
+                }
+
+                if (value.length > 5) {
+                    value = value.slice(0, 5) + "/" + value.slice(5);
+                }
+
+                event.target.value = value.slice(0, 10);
             }
-
-            if (value.length > 5) {
-                value = value.slice(0, 5) + "/" + value.slice(5);
-            }
-
-            event.target.value = value.slice(0, 10);
-        });
+        );
     </script>
 
 </body>
