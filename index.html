@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>33 Month Calculator</title>
+
+    <style>
+        :root {
+            --gold: #B5A26A;
+            --cream: #F4F3EF;
+            --black: #0F0F0F;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: var(--cream);
+            color: var(--black);
+            font-family: Arial, Helvetica, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+        }
+
+        .calculator {
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        h1 {
+            margin: 0 0 12px;
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            margin: 0 0 36px;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 15px;
+            font-weight: 700;
+            text-align: left;
+        }
+
+        input {
+            width: 100%;
+            height: 52px;
+            padding: 0 16px;
+            border: 2px solid var(--black);
+            border-radius: 6px;
+            background: var(--cream);
+            color: var(--black);
+            font-size: 17px;
+            font-family: inherit;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: var(--gold);
+        }
+
+        input::placeholder {
+            color: var(--black);
+            opacity: 0.5;
+        }
+
+        button {
+            width: 100%;
+            height: 52px;
+            margin-top: 16px;
+            border: 2px solid var(--black);
+            border-radius: 6px;
+            background: var(--black);
+            color: var(--cream);
+            font-size: 16px;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            transition: opacity 0.2s ease;
+        }
+
+        button:hover {
+            opacity: 0.85;
+        }
+
+        .result {
+            margin-top: 36px;
+            display: none;
+        }
+
+        .result-label {
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .result-date {
+            color: var(--gold);
+            font-size: 36px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .error {
+            display: none;
+            margin-top: 12px;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 28px;
+            }
+
+            .result-date {
+                font-size: 30px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <main class="calculator">
+
+        <h1>33 Month Calculator</h1>
+
+        <p class="subtitle">
+            Enter a date to find the date exactly 33 months later.
+        </p>
+
+        <label for="dateInput">Enter a date</label>
+
+        <input
+            type="text"
+            id="dateInput"
+            placeholder="MM/DD/YYYY"
+            maxlength="10"
+            inputmode="numeric"
+            autocomplete="off"
+        >
+
+        <button onclick="calculateDate()">Calculate</button>
+
+        <p class="error" id="error">
+            Please enter a valid date in MM/DD/YYYY format.
+        </p>
+
+        <div class="result" id="result">
+            <div class="result-label">33 months later</div>
+            <div class="result-date" id="resultDate"></div>
+        </div>
+
+    </main>
+
+    <script>
+        function calculateDate() {
+            const input = document.getElementById("dateInput").value.trim();
+            const error = document.getElementById("error");
+            const result = document.getElementById("result");
+            const resultDate = document.getElementById("resultDate");
+
+            // Check MM/DD/YYYY format
+            const match = input.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+
+            if (!match) {
+                showError();
+                return;
+            }
+
+            const month = parseInt(match[1], 10);
+            const day = parseInt(match[2], 10);
+            const year = parseInt(match[3], 10);
+
+            if (month < 1 || month > 12 || day < 1 || day > 31) {
+                showError();
+                return;
+            }
+
+            // Create the original date.
+            const originalDate = new Date(year, month - 1, day);
+
+            // Make sure the entered date actually exists.
+            if (
+                originalDate.getFullYear() !== year ||
+                originalDate.getMonth() !== month - 1 ||
+                originalDate.getDate() !== day
+            ) {
+                showError();
+                return;
+            }
+
+            // Add exactly 33 months.
+            const targetMonth = originalDate.getMonth() + 33;
+            const targetYear = originalDate.getFullYear() + Math.floor(targetMonth / 12);
+            const targetMonthIndex = targetMonth % 12;
+
+            // Handle dates such as January 31 → October 31,
+            // while safely handling months that don't have 31 days.
+            const lastDayOfTargetMonth = new Date(
+                targetYear,
+                targetMonthIndex + 1,
+                0
+            ).getDate();
+
+            const targetDay = Math.min(
+                originalDate.getDate(),
+                lastDayOfTargetMonth
+            );
+
+            const finalDate = new Date(
+                targetYear,
+                targetMonthIndex,
+                targetDay
+            );
+
+            const formattedDate =
+                String(finalDate.getMonth() + 1).padStart(2, "0") +
+                "/" +
+                String(finalDate.getDate()).padStart(2, "0") +
+                "/" +
+                finalDate.getFullYear();
+
+            error.style.display = "none";
+            resultDate.textContent = formattedDate;
+            result.style.display = "block";
+        }
+
+        function showError() {
+            document.getElementById("error").style.display = "block";
+            document.getElementById("result").style.display = "none";
+        }
+
+        // Allow the Enter key to calculate.
+        document.getElementById("dateInput").addEventListener("keydown", function(event) {
+            if (event.key === "Enter") {
+                calculateDate();
+            }
+        });
+
+        // Automatically add "/" while typing.
+        document.getElementById("dateInput").addEventListener("input", function(event) {
+            let value = event.target.value.replace(/\D/g, "");
+
+            if (value.length > 2) {
+                value = value.slice(0, 2) + "/" + value.slice(2);
+            }
+
+            if (value.length > 5) {
+                value = value.slice(0, 5) + "/" + value.slice(5);
+            }
+
+            event.target.value = value.slice(0, 10);
+        });
+    </script>
+
+</body>
+</html>
